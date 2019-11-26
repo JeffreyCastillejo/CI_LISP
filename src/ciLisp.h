@@ -1,3 +1,6 @@
+/*
+ * Jeffrey Castillejo
+ */
 #ifndef __cilisp_h_
 #define __cilisp_h_
 
@@ -50,8 +53,7 @@ OPER_TYPE resolveFunc(char *);
 // Initially, there are only numbers and functions.
 // You will expand this enum as you build the project.
 typedef enum {
-    NUM_NODE_TYPE,
-    FUNC_NODE_TYPE
+    NUM_NODE_TYPE, FUNC_NODE_TYPE
 } AST_NODE_TYPE;
 
 // Types of numeric values
@@ -84,24 +86,39 @@ typedef struct {
 
 // Generic Abstract Syntax Tree node. Stores the type of node,
 // and reference to the corresponding specific node (initially a number or function call).
+typedef struct symbol_ast_node {
+    char *ident;
+}SYMBOL_AST_NODE;
+
+typedef struct symbol_table_node {
+    NUM_TYPE val_type;
+    char *ident;
+    struct ast_node *val;
+    struct symbol_table_node *next;
+}SYMBOL_TABLE_NODE;
+
 typedef struct ast_node {
     AST_NODE_TYPE type;
+    SYMBOL_TABLE_NODE *symbolTable;
+    struct ast_node *parent;
     union {
         NUM_AST_NODE number;
         FUNC_AST_NODE function;
+        SYMBOL_AST_NODE symbol;
     } data;
+    struct ast_node *next;
 } AST_NODE;
 
-AST_NODE *createNumberNode(double value, NUM_TYPE type);
 
+AST_NODE *createNumberNode(char *numberType, double value, NUM_TYPE type);
 AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2);
-
 void freeNode(AST_NODE *node);
-
 RET_VAL eval(AST_NODE *node);
 RET_VAL evalNumNode(NUM_AST_NODE *numNode);
 RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode);
+NUM_TYPE evalBinary(RET_VAL *op1, RET_VAL *op2);
 
 void printRetVal(RET_VAL val);
+
 
 #endif
